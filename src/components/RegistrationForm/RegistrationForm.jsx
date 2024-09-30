@@ -1,71 +1,64 @@
+import { Formik, Field, Form, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import { useDispatch } from "react-redux";
 import { register } from "../../redux/auth/operations";
-import { Field, Form, Formik } from "formik";
-export default function RegisterForm() {
-  const dispatch = useDispatch();
-  const handleSubmit = (values, actions) => {
-    console.log(values);
+import css from "./RegistrationForm.module.css";
 
+export const RegistrationForm = () => {
+  const dispatch = useDispatch();
+
+  const validationSchema = Yup.object({
+    name: Yup.string().min(3, "Мінімум 3 символи").required("Обов'язкове поле"),
+    email: Yup.string()
+      .email("Невірний формат email")
+      .required("Обов'язкове поле"),
+    password: Yup.string()
+      .min(6, "Мінімум 6 символів")
+      .required("Обов'язкове поле"),
+  });
+
+  const handleSubmit = (values, { resetForm }) => {
     dispatch(register(values));
-    actions.resetForm();
+    resetForm();
   };
+
   return (
-    // <Formik
-    //   initialValues={{ name: "", email: "", password: "" }}
-    //   onSubmit={handleSubmit}
-    // >
-    //   <Form>
-    //     <label>
-    //       Usarname
-    //       <Field type="text" name="name" />
-    //     </label>
-    //     <label>
-    //       Email
-    //       <Field type="email" name="email" />
-    //     </label>
-    //     <label>
-    //       Password
-    //       <Field type="password" name="password" />
-    //     </label>
-    //     <button type="submit">Register</button>
-    //   </Form>
-    // </Formik>
     <Formik
       initialValues={{ name: "", email: "", password: "" }}
-      validate={(values) => {
-        const errors = {};
-        if (!values.name) {
-          errors.name = "Required";
-        }
-        if (!values.email) {
-          errors.email = "Required";
-        } else if (
-          !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-        ) {
-          errors.email = "Invalid email address";
-        }
-        if (values.password.length < 6) {
-          errors.password = "Password must be at least 6 characters";
-        }
-        return errors;
-      }}
+      validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      <Form>
-        <label>
-          Username
-          <Field type="text" name="name" />
+      <Form className={css.form}>
+        <label htmlFor="name" className={css.label}>
+          Name
+          <Field className={css.input} name="name" type="text" />
+          <ErrorMessage
+            className={`${css.error} ${css.firstError}`}
+            name="name"
+            component="div"
+          />
         </label>
-        <label>
+
+        <label htmlFor="email" className={css.label}>
           Email
-          <Field type="email" name="email" />
+          <Field className={css.input} name="email" type="email" />
+          <ErrorMessage
+            className={`${css.error} ${css.secondError}`}
+            name="email"
+            component="div"
+          />
         </label>
-        <label>
+
+        <label htmlFor="password" className={css.label}>
           Password
-          <Field type="password" name="password" />
+          <Field className={css.input} name="password" type="password" />
+          <ErrorMessage className={css.error} name="password" component="div" />
         </label>
-        <button type="submit">Register</button>
+
+        <button className={css.button} type="submit">
+          Register
+        </button>
       </Form>
     </Formik>
   );
-}
+};

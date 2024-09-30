@@ -1,56 +1,32 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { setAuthHeader, api } from "../auth/operations";
+import axios from "axios";
 
-export const fetchContacts = createAsyncThunk(
-  "contacts/getContact",
-  async (_, thunkApi) => {
-    const state = thunkApi.getState();
-    const token = state.auth.token;
-    if (!token) {
-      throw new Error("No authentication token available");
-    }
-    setAuthHeader(token);
-    try {
-      const response = await api.get("/contacts");
-      return response.data;
-    } catch (error) {
-      return thunkApi.rejectWithValue(error.message);
-    }
-  }
-);
+axios.defaults.baseURL = "https://connections-api.goit.global/";
+export const fetchContacts = createAsyncThunk("contacts/fetchAll", async () => {
+  const response = await axios.get("/contacts");
+  return response.data;
+});
 
 export const addContact = createAsyncThunk(
   "contacts/addContact",
-  async (newContact, thunkApi) => {
+  async (contact, thunkAPI) => {
     try {
-      const state = thunkApi.getState();
-      const token = state.auth.token;
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-      setAuthHeader(token);
-      const response = await api.post("/contacts", newContact);
+      const response = await axios.post("/contacts", contact);
       return response.data;
-    } catch (error) {
-      return thunkApi.rejectWithValue(error.message);
+    } catch (e) {
+      return thunkAPI.rejectWithValue(e.message);
     }
   }
 );
 
 export const deleteContact = createAsyncThunk(
   "contacts/deleteContact",
-  async (contactID, thunkAPI) => {
+  async (contactId, thunkAPI) => {
     try {
-      const state = thunkAPI.getState();
-      const token = state.auth.token;
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-      setAuthHeader(token);
-      const response = await api.delete(`/contacts/${contactID}`);
+      const response = await axios.delete(`/contacts/${contactId}`);
       return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (e) {
+      return thunkAPI.rejectWithValue(e.message);
     }
   }
 );
